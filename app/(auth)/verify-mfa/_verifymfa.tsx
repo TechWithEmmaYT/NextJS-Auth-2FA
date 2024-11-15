@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { z } from "zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -23,14 +23,17 @@ import {
 import { toast } from "@/hooks/use-toast";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import { doMFAVerify } from "@/app/actions/auth.action";
+import { useMutation } from "@tanstack/react-query";
+import { verifyMFALoginMutationFn } from "@/lib/api";
 
 const VerifyMfa = () => {
   const router = useRouter();
   const params = useSearchParams();
   const email = params.get("email");
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { mutate, isPending } = useMutation({
+    mutationFn: verifyMFALoginMutationFn,
+  });
 
   const FormSchema = z.object({
     pin: z.string().min(6, {
@@ -50,29 +53,27 @@ const VerifyMfa = () => {
       router.replace("/");
       return;
     }
-    try {
-      setIsLoading(true);
-      const userAgent = navigator.userAgent;
-      const res = await doMFAVerify({
-        code: values.pin,
-        email: email,
-        userAgent,
-      });
-
-      if (res?.success) {
+    const data = {
+      code: values.pin,
+      email: email,
+    };
+    mutate(data, {
+      onSuccess: (response) => {
+        console.log(response, "data");
         router.replace("/home");
-      } else {
-        console.error("Verify mfa failed:", res?.message);
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+        toast({
+          title: "Success",
+          description: response?.data?.message,
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
   };
 
   return (
@@ -148,8 +149,8 @@ const VerifyMfa = () => {
                   </FormItem>
                 )}
               />
-              <Button disabled={isLoading} className="w-full h-[40px] mt-2">
-                {isLoading && <Loader className="animate-spin" />}
+              <Button disabled={isPending} className="w-full h-[40px] mt-2">
+                {isPending && <Loader className="animate-spin" />}
                 Continue
                 <ArrowRight />
               </Button>

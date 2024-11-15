@@ -18,12 +18,10 @@ import { Input } from "@/components/ui/input";
 import { loginMutationFn } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/logo";
-//import { doCredentialLogin } from "../actions/auth.action";
 import { toast } from "@/hooks/use-toast";
 
 export default function Login() {
   const router = useRouter();
-  // const [isLoading, setIsLoading] = useState(false);
 
   const { mutate, isPending } = useMutation({
     mutationFn: loginMutationFn,
