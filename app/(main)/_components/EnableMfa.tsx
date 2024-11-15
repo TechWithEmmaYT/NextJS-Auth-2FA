@@ -282,7 +282,7 @@ const EnableMfa = () => {
                     />
                     <Button
                       disabled={isPending || isLoading}
-                      className="w-full h-[40px]"
+                      className="w-full h-[40px] text-white"
                     >
                       {isPending && <Loader className="animate-spin" />}
                       Verify

@@ -34,8 +34,10 @@ type mfaType = {
   qrImageUrl: string;
 };
 
-export const loginMutationFn = async (data: loginType) =>
-  await API.post(`/auth/login`, data);
+export const loginMutationFn = async (data: loginType) => {
+  const response = await API.post(`/auth/login`, data);
+  return response.data;
+};
 
 export const registerMutationFn = async (data: registerType) =>
   await API.post(`/auth/register`, data);
